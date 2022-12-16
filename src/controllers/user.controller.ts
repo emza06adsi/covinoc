@@ -20,7 +20,7 @@ import {
 } from '@loopback/rest';
 import * as _ from 'lodash';
 import {User} from '../models';
-import {UserRepository} from '../repositories';
+import {Credentials, UserRepository} from '../repositories';
 import {validateCredentials} from '../services/validator';
 
 export class UserController {
@@ -52,6 +52,39 @@ export class UserController {
     // const savedAppUserTb = await this.appUserTbRepository.create(appUserData)
     // delete savedAppUserTb.Password;
     // return savedAppUserTb;
+  }
+
+  @post('user/login', {
+    responses: {
+      '200': {
+        description: 'Token',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                token: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  })
+  async login(
+    @requestBody() credentials: Credentials,
+  ): Promise<{token: String}> {
+    //make sure user exit, password should be valid
+    // const user = await this.userService.verifyCredentials(credentials)
+    // console.log(user)
+    // const UserProfile = await this.userService.convertToUserProfile(user);
+    // console.log(UserProfile)
+    // // generate a jwt web token
+    // const token = await this.jweService.generateToken(UserProfile);
+    // return Promise.resolve({token});
+    return Promise.resolve({token: '138asda8213'});
   }
 
   @post('/users')
