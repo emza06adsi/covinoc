@@ -23,6 +23,7 @@ import * as _ from 'lodash';
 import {User} from '../models';
 import {Credentials, UserRepository} from '../repositories';
 import {BcryptHasher} from '../services/hash.password.bcrypt';
+import {MyUserService} from '../services/user-service';
 import {validateCredentials} from '../services/validator';
 
 export class UserController {
@@ -31,6 +32,8 @@ export class UserController {
     public userRepository: UserRepository,
     @inject('service.hasher')
     public bcrypHasher: BcryptHasher,
+    @inject('services.user.service')
+    public userService: MyUserService,
   ) {}
 
   @post('/signup', {
@@ -49,6 +52,7 @@ export class UserController {
 
     userData.password = await this.bcrypHasher.hashPassword(password);
 
+    // validateCredentials(_.pick({email, password}, ['email', 'password']));
     let savedUser = await this.userRepository.create(userData);
     // delete savedUser.password
     return savedUser;
@@ -87,7 +91,11 @@ export class UserController {
 
     // const user = await this.userService.verifyCredentials(credentials)
     // console.log(user)
-    // const UserProfile = await this.userService.convertToUserProfile(user);
+    //make sure user exit, password should be valid
+    const user = await this.userService.verifyCredentials(credentials);
+    console.log(user);
+    const UserProfile = await this.userService.convertToUserProfile(user);
+    console.log(UserProfile);
     // console.log(UserProfile)
     // // generate a jwt web token
     // const token = await this.jweService.generateToken(UserProfile);
