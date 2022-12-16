@@ -2,6 +2,7 @@ import {inject} from '@loopback/core';
 import {HttpErrors} from '@loopback/rest';
 import jwt from 'jsonwebtoken';
 import {User} from '../models';
+import {TokenServiceBindings} from './keys';
 
 export const encodeJWT = (
   payload: string | object | Buffer,
@@ -34,9 +35,9 @@ export const verifyAsync = async (
 };
 
 export class JWTService {
-  @inject('authentication.jwt.secret')
+  @inject(TokenServiceBindings.TOKEN_SECRET)
   public readonly jwtSecret: string;
-  @inject('authentication.jwt.expiresIn')
+  @inject(TokenServiceBindings.TOKEN_EXPIRES_IN)
   public readonly expiresIn: string;
 
   async generateToken(user: User): Promise<String> {
@@ -65,9 +66,9 @@ export class JWTService {
     let UserProfile: User;
 
     try {
-      const {id, Name1} = await verifyAsync(token, this.jwtSecret);
+      const {id, name} = await verifyAsync(token, this.jwtSecret);
 
-      UserProfile = Object.assign({id, Name1});
+      UserProfile = Object.assign({id, name});
 
       return UserProfile;
     } catch (error) {

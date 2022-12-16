@@ -6,6 +6,7 @@ import {UserProfile} from '@loopback/security';
 import {User} from '../models';
 import {Credentials, UserRepository} from '../repositories';
 import {BcryptHasher} from './hash.password.bcrypt';
+import {PasswordHasherBindings} from './keys';
 // import {PasswordHasherBindings} from '../keys';
 // import {AppUserTb} from '../models';
 // import {AppUserTbRepository, Credentials} from '../repositories';
@@ -15,7 +16,7 @@ export class MyUserService implements UserService<User, Credentials> {
   constructor(
     @repository(UserRepository)
     public userRepository: UserRepository,
-    @inject('service.hasher')
+    @inject(PasswordHasherBindings.PASSWORD_HASHER)
     public hasher: BcryptHasher,
   ) {}
 

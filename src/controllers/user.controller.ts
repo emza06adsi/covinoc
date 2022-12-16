@@ -24,6 +24,11 @@ import {User} from '../models';
 import {Credentials, UserRepository} from '../repositories';
 import {BcryptHasher} from '../services/hash.password.bcrypt';
 import {JWTService} from '../services/jwt-service';
+import {
+  PasswordHasherBindings,
+  TokenServiceBindings,
+  UserServiceBindings,
+} from '../services/keys';
 import {MyUserService} from '../services/user-service';
 import {validateCredentials} from '../services/validator';
 
@@ -31,11 +36,11 @@ export class UserController {
   constructor(
     @repository(UserRepository)
     public userRepository: UserRepository,
-    @inject('service.hasher')
+    @inject(PasswordHasherBindings.PASSWORD_HASHER)
     public bcrypHasher: BcryptHasher,
-    @inject('services.user.service')
+    @inject(UserServiceBindings.USER_SERVICE)
     public userService: MyUserService,
-    @inject('services.jwt.service')
+    @inject(TokenServiceBindings.TOKEN_SERVICE)
     public jwtService: JWTService,
   ) {}
 
