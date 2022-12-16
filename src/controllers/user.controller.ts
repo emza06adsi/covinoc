@@ -1,3 +1,4 @@
+import {inject} from '@loopback/core';
 import {
   Count,
   CountSchema,
@@ -21,12 +22,15 @@ import {
 import * as _ from 'lodash';
 import {User} from '../models';
 import {Credentials, UserRepository} from '../repositories';
+import {BcryptHasher} from '../services/hash.password.bcrypt';
 import {validateCredentials} from '../services/validator';
 
 export class UserController {
   constructor(
     @repository(UserRepository)
     public userRepository: UserRepository,
+    @inject('service.hasher')
+    public bcrypHasher: BcryptHasher,
   ) {}
 
   @post('/signup', {
@@ -42,6 +46,9 @@ export class UserController {
   async signup(@requestBody() userData: User) {
     const {email, password} = userData;
     validateCredentials(_.pick({email, password}, ['email', 'password']));
+
+    userData.password = await this.bcrypHasher.hashPassword(password);
+
     let savedUser = await this.userRepository.create(userData);
     // delete savedUser.password
     return savedUser;
@@ -76,7 +83,8 @@ export class UserController {
   async login(
     @requestBody() credentials: Credentials,
   ): Promise<{token: String}> {
-    //make sure user exit, password should be valid
+    // make sure user exit, password should be valid
+
     // const user = await this.userService.verifyCredentials(credentials)
     // console.log(user)
     // const UserProfile = await this.userService.convertToUserProfile(user);

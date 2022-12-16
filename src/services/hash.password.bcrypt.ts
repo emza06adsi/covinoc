@@ -17,9 +17,9 @@ export class BcryptHasher implements PasswordHasher<string> {
     return passwordMatched;
   }
   @inject('rounds')
-  // public readonly rounds: number;
+  public readonly rounds: number;
   async hashPassword(Password: string) {
-    const salt = await genSalt(10);
+    const salt = await genSalt(this.rounds);
     return await hash(Password, salt);
   }
 }
