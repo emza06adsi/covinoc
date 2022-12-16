@@ -1,20 +1,12 @@
 import {authenticate} from '@loopback/authentication';
 import {inject} from '@loopback/core';
-import {
-  Count,
-  CountSchema,
-  Filter,
-  FilterExcludingWhere,
-  repository,
-  Where,
-} from '@loopback/repository';
+import {Filter, FilterExcludingWhere, repository} from '@loopback/repository';
 import {
   del,
   get,
   getJsonSchemaRef,
   getModelSchemaRef,
   param,
-  patch,
   post,
   put,
   requestBody,
@@ -55,7 +47,6 @@ export class UserController {
       },
     },
   })
-  // @authenticate('jwt')
   async signup(@requestBody() userData: User) {
     const {email, password} = userData;
     validateCredentials(_.pick({email, password}, ['email', 'password']));
@@ -97,11 +88,6 @@ export class UserController {
   async login(
     @requestBody() credentials: Credentials,
   ): Promise<{token: String}> {
-    // make sure user exit, password should be valid
-
-    // const user = await this.userService.verifyCredentials(credentials)
-    // console.log(user)
-    //make sure user exit, password should be valid
     const user = await this.userService.verifyCredentials(credentials);
     console.log(user);
     const UserProfile = await this.userService.convertToUserProfile(user);
@@ -109,41 +95,9 @@ export class UserController {
     // generate a jwt web token
     const token = await this.jwtService.generateToken(UserProfile);
     return Promise.resolve({token});
-    // return Promise.resolve({token: '138asda8213'});
-  }
-
-  @post('/users')
-  @response(200, {
-    description: 'User model instance',
-    content: {'application/json': {schema: getModelSchemaRef(User)}},
-  })
-  async create(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(User, {
-            title: 'NewUser',
-            exclude: ['id'],
-          }),
-        },
-      },
-    })
-    user: Omit<User, 'id'>,
-  ): Promise<User> {
-    return this.userRepository.create(user);
-  }
-
-  @get('/users/count')
-  @response(200, {
-    description: 'User model count',
-    content: {'application/json': {schema: CountSchema}},
-  })
-  async count(@param.where(User) where?: Where<User>): Promise<Count> {
-    return this.userRepository.count(where);
   }
 
   @get('/users')
-  @authenticate('jwt')
   @response(200, {
     description: 'Array of User model instances',
     content: {
@@ -159,26 +113,8 @@ export class UserController {
     return this.userRepository.find(filter);
   }
 
-  @patch('/users')
-  @response(200, {
-    description: 'User PATCH success count',
-    content: {'application/json': {schema: CountSchema}},
-  })
-  async updateAll(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(User, {partial: true}),
-        },
-      },
-    })
-    user: User,
-    @param.where(User) where?: Where<User>,
-  ): Promise<Count> {
-    return this.userRepository.updateAll(user, where);
-  }
-
   @get('/users/{id}')
+  @authenticate('jwt')
   @response(200, {
     description: 'User model instance',
     content: {
@@ -194,25 +130,8 @@ export class UserController {
     return this.userRepository.findById(id, filter);
   }
 
-  @patch('/users/{id}')
-  @response(204, {
-    description: 'User PATCH success',
-  })
-  async updateById(
-    @param.path.number('id') id: number,
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(User, {partial: true}),
-        },
-      },
-    })
-    user: User,
-  ): Promise<void> {
-    await this.userRepository.updateById(id, user);
-  }
-
   @put('/users/{id}')
+  @authenticate('jwt')
   @response(204, {
     description: 'User PUT success',
   })
@@ -224,6 +143,7 @@ export class UserController {
   }
 
   @del('/users/{id}')
+  @authenticate('jwt')
   @response(204, {
     description: 'User DELETE success',
   })
