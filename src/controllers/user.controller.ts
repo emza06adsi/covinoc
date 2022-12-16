@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {inject} from '@loopback/core';
 import {
   Count,
@@ -54,6 +55,7 @@ export class UserController {
       },
     },
   })
+  // @authenticate('jwt')
   async signup(@requestBody() userData: User) {
     const {email, password} = userData;
     validateCredentials(_.pick({email, password}, ['email', 'password']));
@@ -141,6 +143,7 @@ export class UserController {
   }
 
   @get('/users')
+  @authenticate('jwt')
   @response(200, {
     description: 'Array of User model instances',
     content: {

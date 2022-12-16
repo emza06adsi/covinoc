@@ -1,3 +1,7 @@
+import {
+  AuthenticationComponent,
+  registerAuthenticationStrategy,
+} from '@loopback/authentication';
 import {BootMixin} from '@loopback/boot';
 import {ApplicationConfig} from '@loopback/core';
 import {RepositoryMixin} from '@loopback/repository';
@@ -8,6 +12,7 @@ import {
 } from '@loopback/rest-explorer';
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
+import {JWTStrategy} from './authentication-strategies/jwt-strategy';
 import {MySequence} from './sequence';
 import {BcryptHasher} from './services/hash.password.bcrypt';
 import {JWTService} from './services/jwt-service';
@@ -29,6 +34,9 @@ export class CovinocApplication extends BootMixin(
 
     // set up bindings
     this.setupBinding();
+
+    this.component(AuthenticationComponent);
+    registerAuthenticationStrategy(this, JWTStrategy);
 
     // Set up the custom sequence
     this.sequence(MySequence);
