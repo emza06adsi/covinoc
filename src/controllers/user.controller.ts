@@ -7,24 +7,52 @@ import {
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
   del,
+  get,
+  getJsonSchemaRef,
+  getModelSchemaRef,
+  param,
+  patch,
+  post,
+  put,
   requestBody,
   response,
 } from '@loopback/rest';
+import * as _ from 'lodash';
 import {User} from '../models';
 import {UserRepository} from '../repositories';
+import {validateCredentials} from '../services/validator';
 
 export class UserController {
   constructor(
     @repository(UserRepository)
-    public userRepository : UserRepository,
+    public userRepository: UserRepository,
   ) {}
+
+  @post('/signup', {
+    responses: {
+      '200': {
+        description: 'AppUser',
+        content: {
+          schema: getJsonSchemaRef(User),
+        },
+      },
+    },
+  })
+  async signup(@requestBody() userData: User) {
+    const {email, password} = userData;
+    validateCredentials(_.pick({email, password}, ['email', 'password']));
+    let savedUser = await this.userRepository.create(userData);
+    // delete savedUser.password
+    return savedUser;
+    // const {Email, Password = ''} = appUserData;
+    // validateCredentials(_.pick({Email, Password}, ['Email', 'Password']));
+    // appUserData.permissions = [PermissionKeys.AccessAuthFeature];
+    // appUserData.Password = await this.hasher.hashPassword(Password);
+    // const savedAppUserTb = await this.appUserTbRepository.create(appUserData)
+    // delete savedAppUserTb.Password;
+    // return savedAppUserTb;
+  }
 
   @post('/users')
   @response(200, {
@@ -52,9 +80,7 @@ export class UserController {
     description: 'User model count',
     content: {'application/json': {schema: CountSchema}},
   })
-  async count(
-    @param.where(User) where?: Where<User>,
-  ): Promise<Count> {
+  async count(@param.where(User) where?: Where<User>): Promise<Count> {
     return this.userRepository.count(where);
   }
 
@@ -70,9 +96,7 @@ export class UserController {
       },
     },
   })
-  async find(
-    @param.filter(User) filter?: Filter<User>,
-  ): Promise<User[]> {
+  async find(@param.filter(User) filter?: Filter<User>): Promise<User[]> {
     return this.userRepository.find(filter);
   }
 
@@ -106,7 +130,7 @@ export class UserController {
   })
   async findById(
     @param.path.number('id') id: number,
-    @param.filter(User, {exclude: 'where'}) filter?: FilterExcludingWhere<User>
+    @param.filter(User, {exclude: 'where'}) filter?: FilterExcludingWhere<User>,
   ): Promise<User> {
     return this.userRepository.findById(id, filter);
   }
