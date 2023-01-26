@@ -51,7 +51,7 @@ export class MyUserService implements UserService<User, Credentials> {
   convertToUserProfile(user: User): UserProfile | any {
     let userName = '';
     if (user.name) {
-      userName = user.name;
+      userName = '' + user.id;
     }
     // if (user.LastName) {
     //   userName = user.UserName
